@@ -20,6 +20,12 @@
 
 #include "core.h"
 
+#include <string.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+
 namespace DartObjects {
 
 struct DeviceList {
@@ -29,6 +35,16 @@ struct DeviceList {
   // Previousing data
   std::vector<DartDeviceList::Device> device_infos;
   std::vector<Device> devices;
+};
+
+/// NEW
+struct TrackList {
+  // The audio Track list that gets exposed to Dart.
+  DartTrackList dart_object;
+
+  // Previousing data
+  std::vector<DartTrackList::Track> track_infos;
+  std::vector<Track> tracks;
 };
 
 struct Equalizer {
@@ -211,6 +227,82 @@ void PlayerSetVolume(int32_t id, float volume) {
   player->SetVolume(volume);
 }
 
+void PlayerSetAudioDelay(int32_t id, int64_t delay_in_micros) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  player->SetAudioDelay(delay_in_micros);
+}
+
+int64_t PlayerGetAudioDelay(int32_t id) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  return player->GetAudioDelay();
+}
+
+void PlayerSetSubtitleDelay(int32_t id, int64_t delay_in_micros) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  player->SetSubtitleDelay(delay_in_micros);
+}
+
+int64_t PlayerGetSubtitleDelay(int32_t id) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  return player->GetSubtitleDelay();
+}
+
+void PlayerSetAspectRatio(int32_t id, const char* ar) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  player->SetAspectRatio(ar);
+}
+
+  char* PlayerGetAspectRatio(int32_t id) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  // return player->GetAspectRatio();
+
+  char* ar = player->GetAspectRatio();
+  char* ptr = (char*) malloc(strlen(ar));
+  strcpy(ptr, ar);
+  return ptr;
+}
+
+bool PlayerSetCustomSubtitleFile(int32_t id, const char* file_path, bool select) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  return player->SetCustomSubtitleFile(file_path, select);
+}
+
+
 void PlayerSetRate(int32_t id, float rate) {
   auto player = g_players->Get(id);
   if (!player) {
@@ -347,6 +439,27 @@ void PlayerSetAudioTrack(int32_t id, int32_t track) {
   player->SetAudioTrack(track);
 }
 
+//new
+void PlayerSetVideoTrack(int32_t id, int32_t track) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  player->SetVideoTrack(track);
+}
+//new
+void PlayerSetSubtitleTrack(int32_t id, int32_t track) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  player->SetSubtitleTrack(track);
+}
+
 int32_t PlayerGetAudioTrackCount(int32_t id) {
   auto player = g_players->Get(id);
   if (!player) {
@@ -356,6 +469,66 @@ int32_t PlayerGetAudioTrackCount(int32_t id) {
   }
   return player->GetAudioTrackCount();
 }
+
+int32_t PlayerGetCurrentTrack(int32_t id, const char* track_type) {
+  auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+  
+    if(strcmp(track_type, "AUDIO") == 0) {
+    return player->GetCurrentAudioTrack();
+  } else if(strcmp(track_type, "VIDEO") == 0) {
+    return player->GetCurrentVideoTrack();
+  } else if(strcmp(track_type, "SUBTITLE") == 0) {
+    return player->GetCurrentSubtitleTrack();
+  }
+  return player->GetCurrentAudioTrack();
+}
+
+DartTrackList* PlayerGetAllTracks(int32_t id, const char* track_type, Dart_Handle object) {
+    auto player = g_players->Get(id);
+  if (!player) {
+    g_players->Create(
+        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    player = g_players->Get(id);
+  }
+
+  std::vector<VLC::TrackDescription> tracks;
+  if(strcmp(track_type, "AUDIO") == 0) {
+    tracks = player->GetAudioTracksDescription();
+  } else if(strcmp(track_type, "VIDEO") == 0) {
+    tracks = player->GetVideoTracksDescription();
+  } else if(strcmp(track_type, "SUBTITLE") == 0) {
+    tracks = player->GetSubtitleTracksDescription();
+  }
+
+  std::vector<Track> tracksX{};
+    for (VLC::TrackDescription vlc_track : tracks) {
+    tracksX.emplace_back(Track(std::to_string(vlc_track.id()), vlc_track.name()));
+  }
+  
+  auto wrapper = new DartObjects::TrackList();
+  wrapper->tracks = tracksX;
+
+    for (const auto& track : wrapper->tracks) {
+    wrapper->track_infos.emplace_back(track.id().c_str(),
+                                            track.name().c_str());
+  }
+
+  wrapper->dart_object.size = wrapper->track_infos.size();
+  wrapper->dart_object.track_infos = wrapper->track_infos.data();
+
+  
+  Dart_NewFinalizableHandle_DL(
+      object, wrapper, sizeof(*wrapper),
+      static_cast<Dart_HandleFinalizer>(DartObjects::DestroyObject));
+
+  return &wrapper->dart_object;
+}
+
 
 void PlayerSetHWND(int32_t id, int64_t hwnd) {
   auto player = g_players->Get(id);

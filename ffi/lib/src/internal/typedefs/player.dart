@@ -64,3 +64,47 @@ typedef PlayerGetAudioTrackCountCXX = Int32 Function(Int32 id);
 typedef PlayerGetAudioTrackCountDart = int Function(int id);
 typedef PlayerSetHWNDCXX = Int32 Function(Int32 id, Int64 hwnd);
 typedef PlayerSetHWNDDart = int Function(int id, int hwnd);
+
+
+typedef PlayerGetCurrentTrackCXX = Int32 Function(Int32 id, Pointer<Utf8> trackTtype);
+typedef PlayerGetCurrentTrackDart = int Function(int id, Pointer<Utf8> trackTtype);
+
+class TrackStruct extends Struct {
+  external Pointer<Utf8> id;
+  external Pointer<Utf8> name;
+}
+
+/// Struct received from C with tracks data.
+class TrackList extends Struct {
+  @Int32()
+  external int size;
+  external Pointer<TrackStruct> tracks;
+}
+
+typedef TracksAllCXX = Pointer<TrackList> Function(Int32 id, Pointer<Utf8> trackTtype, Handle object);
+typedef TracksAllDart = Pointer<TrackList> Function(int id, Pointer<Utf8> trackType, Object object);
+
+typedef PlayerSetVideoTrackCXX = Void Function(Int32 id, Int32 index);
+typedef PlayerSetVideoTrackDart = void Function(int id, int index);
+typedef PlayerSetSubtitleTrackCXX = Void Function(Int32 id, Int32 index);
+typedef PlayerSetSubtitleTrackDart = void Function(int id, int index);
+
+
+typedef PlayerSetAudioDelayCXX = Void Function(Int32 id, Int64 delayInMicros);
+typedef PlayerSetAudioDelayDart = void Function(int id, int delayInMicros);
+typedef PlayerGetAudioDelayCXX = Int64 Function(Int32 id);
+typedef PlayerGetAudioDelayDart = int Function(int id);
+
+typedef PlayerSetSubtitleDelayCXX = Void Function(Int32 id, Int64 delayInMicros);
+typedef PlayerSetSubtitleDelayDart = void Function(int id, int delayInMicros);
+typedef PlayerGetSubtitleDelayCXX = Int64 Function(Int32 id);
+typedef PlayerGetSubtitleDelayDart = int Function(int id);
+
+typedef PlayerSetCustomSubtitleFileCXX = Bool Function(Int32 id, Pointer<Utf8> filePath, Bool select);
+typedef PlayerSetCustomSubtitleFileDart = bool Function(int id, Pointer<Utf8> filepath, bool select);
+
+typedef PlayerGetAspectRatioCXX = Pointer<Utf8> Function(Int32 id);
+typedef PlayerGetAspectRatioDart = Pointer<Utf8> Function(int id);
+
+typedef PlayerSetAspectRatioCXX = Void Function(Int32 id, Pointer<Utf8> ar);
+typedef PlayerSetAspectRatioDart = void Function(int id, Pointer<Utf8> ar);

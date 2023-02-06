@@ -20,6 +20,8 @@
 
 #include <functional>
 
+class TrackDescription;
+
 Player::Player(const std::vector<std::string>& cmd_arguments) {
   if (cmd_arguments.empty()) {
     vlc_instance_ = VLC::Instance(0, nullptr);
@@ -140,6 +142,35 @@ void Player::SetVolume(float volume) {
   volume_callback_(volume);
 }
 
+
+void Player::SetAudioDelay(int64_t delay_in_micros) {
+  vlc_media_player_.setAudioDelay(delay_in_micros);
+}
+
+int64_t Player::GetAudioDelay() {
+  return vlc_media_player_.audioDelay();
+}
+
+void Player::SetSubtitleDelay(int64_t delay_in_micros) {
+  vlc_media_player_.setSpuDelay(delay_in_micros);
+}
+
+int64_t Player::GetSubtitleDelay() {
+  return vlc_media_player_.spuDelay();
+}
+
+void Player::SetAspectRatio(const char* aspect_ratio) {
+  vlc_media_player_.setAspectRatio(aspect_ratio);
+}
+
+char* Player::GetAspectRatio() {
+  return strdup(vlc_media_player_.aspectRatio().c_str());
+}
+
+bool Player::SetCustomSubtitleFile(std::string file_path, bool select) {
+  return vlc_media_player_.addSlave(VLC::MediaSlave::Type::Subtitle, file_path, select);
+}
+
 void Player::SetRate(float rate) {
   vlc_media_player_.setRate(rate);
   state()->set_rate(rate);
@@ -251,6 +282,39 @@ int32_t Player::GetAudioTrackCount() {
   return vlc_media_player_.audioTrackCount();
 }
 
+int32_t Player::GetCurrentAudioTrack() {
+  return vlc_media_player_.audioTrack();
+}
+
+std::vector<VLC::TrackDescription> Player::GetAudioTracksDescription() {
+  return vlc_media_player_.audioTrackDescription();
+}
+
+int32_t Player::GetCurrentSubtitleTrack() {
+  return vlc_media_player_.spu();
+}
+
+std::vector<VLC::TrackDescription> Player::GetSubtitleTracksDescription() {
+  return vlc_media_player_.spuDescription();
+}
+
+void Player::SetSubtitleTrack(int32_t track) {
+  vlc_media_player_.setSpu(track);
+} 
+
+int32_t Player::GetCurrentVideoTrack() {
+  return vlc_media_player_.videoTrack();
+}
+
+std::vector<VLC::TrackDescription> Player::GetVideoTracksDescription() {
+  return vlc_media_player_.videoTrackDescription();
+}
+
+void Player::SetVideoTrack(int32_t track) {
+  vlc_media_player_.setVideoTrack(track);
+} 
+
+/// @param hwnd 
 void Player::SetHWND(int64_t hwnd) {
   vlc_media_player_.setHwnd(reinterpret_cast<void*>(hwnd));
 }

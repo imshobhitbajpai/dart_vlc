@@ -90,6 +90,8 @@ add_library(${LIBRARY_NAME} STATIC
   broadcast/broadcast.cc
   chromecast/chromecast.cc
   record/record.cc
+  #NEW
+  tracks/tracks.cc
 )
 
 add_dependencies(${LIBRARY_NAME} LIBVLC_EXTRACT)

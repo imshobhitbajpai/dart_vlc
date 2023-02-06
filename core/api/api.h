@@ -39,6 +39,17 @@ struct DartDeviceList {
   const Device* device_infos;
 };
 
+struct DartTrackList {
+  struct Track {
+    const char* id;
+    const char* name;
+    explicit Track(const char* id, const char* name) : id(id), name(name) {}
+  };
+
+  int32_t size;
+  const Track* track_infos;
+};
+
 struct DartEqualizer {
   int32_t id;
   float pre_amp;
@@ -98,11 +109,26 @@ DLLEXPORT void PlayerMove(int32_t id, int32_t initial_index,
 DLLEXPORT void PlayerTakeSnapshot(int32_t id, const char* file_path,
                                   int32_t width, int32_t height);
 
-DLLEXPORT void PlayerSetAudioTrack(int32_t id, int32_t track);
 
 DLLEXPORT int32_t PlayerGetAudioTrackCount(int32_t id);
 
 DLLEXPORT void PlayerSetHWND(int32_t id, int64_t hwnd);
+
+DLLEXPORT int32_t PlayerGetCurrentTrack(int32_t id, const char* track_type);
+DLLEXPORT void PlayerSetAudioTrack(int32_t id, int32_t track);
+DLLEXPORT void PlayerSetVideoTrack(int32_t id, int32_t track);
+DLLEXPORT void PlayerSetSubtitleTrack(int32_t id, int32_t track);
+
+DLLEXPORT void PlayerSetAudioDelay(int32_t id, int64_t delay_in_micros);
+DLLEXPORT int64_t PlayerGetAudioDelay(int32_t id);
+
+DLLEXPORT void PlayerSetSubtitleDelay(int32_t id, int64_t delay_in_micros);
+DLLEXPORT int64_t PlayerGetSubtitleDelay(int32_t id);
+
+DLLEXPORT void PlayerSetAspectRatio(int32_t id, const char* ar);
+DLLEXPORT char* PlayerGetAspectRatio(int32_t id);
+
+DLLEXPORT bool PlayerSetCustomSubtitleFile(int32_t id,  const char* file_path, bool select);
 
 DLLEXPORT const char** MediaParse(Dart_Handle object, const char* type,
                                   const char* resource, int32_t timeout);
@@ -132,6 +158,8 @@ DLLEXPORT void RecordStart(int32_t id);
 DLLEXPORT void RecordDispose(int32_t id);
 
 DLLEXPORT DartDeviceList* DevicesAll(Dart_Handle object);
+
+DLLEXPORT DartTrackList* PlayerGetAllTracks(int32_t id, const char* track_type, Dart_Handle object);
 
 DLLEXPORT struct DartEqualizer* EqualizerCreateEmpty(Dart_Handle object);
 

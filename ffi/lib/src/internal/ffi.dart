@@ -107,6 +107,14 @@ abstract class PlayerFFI {
   static final PlayerSetAudioTrackDart setAudioTrack = dynamicLibrary
       .lookup<NativeFunction<PlayerSetAudioTrackCXX>>('PlayerSetAudioTrack')
       .asFunction();
+  //NEW
+  static final PlayerSetVideoTrackDart setVideoTrack = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetVideoTrackCXX>>('PlayerSetVideoTrack')
+      .asFunction();
+  //NEW
+  static final PlayerSetSubtitleTrackDart setSubtitleTrack = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetSubtitleTrackCXX>>('PlayerSetSubtitleTrack')
+      .asFunction();
 
   static final PlayerGetAudioTrackCountDart getAudioTrackCount = dynamicLibrary
       .lookup<NativeFunction<PlayerGetAudioTrackCountCXX>>(
@@ -116,6 +124,43 @@ abstract class PlayerFFI {
   static final PlayerSetHWNDDart setHWND = dynamicLibrary
       .lookup<NativeFunction<PlayerSetHWNDCXX>>('PlayerSetHWND')
       .asFunction();
+
+  static final PlayerGetCurrentTrackDart getCurrentTrack = dynamicLibrary
+      .lookup<NativeFunction<PlayerGetCurrentTrackCXX>>('PlayerGetCurrentTrack')
+      .asFunction();
+
+  static final TracksAllDart getAllTracks = dynamicLibrary
+      .lookup<NativeFunction<TracksAllCXX>>('PlayerGetAllTracks')
+      .asFunction();
+
+  static final PlayerSetAudioDelayDart setAudioDelay = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetAudioDelayCXX>>('PlayerSetAudioDelay')
+      .asFunction();
+
+  static final PlayerGetAudioDelayDart getAudioDelay = dynamicLibrary
+      .lookup<NativeFunction<PlayerGetAudioDelayCXX>>('PlayerGetAudioDelay')
+      .asFunction();
+      
+  static final PlayerSetSubtitleDelayDart setSubtitleDelay = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetSubtitleDelayCXX>>('PlayerSetSubtitleDelay')
+      .asFunction();
+
+  static final PlayerGetAudioDelayDart getSubtitleDelay = dynamicLibrary
+      .lookup<NativeFunction<PlayerGetSubtitleDelayCXX>>('PlayerGetSubtitleDelay')
+      .asFunction();
+
+  static final PlayerSetCustomSubtitleFileDart setCustomSubtitleFile = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetCustomSubtitleFileCXX>>('PlayerSetCustomSubtitleFile')
+      .asFunction();
+
+  static final PlayerGetAspectRatioDart getAspectRatio = dynamicLibrary
+      .lookup<NativeFunction<PlayerGetAspectRatioCXX>>('PlayerGetAspectRatio')
+      .asFunction();
+
+  static final PlayerSetAspectRatioDart setAspectRatio = dynamicLibrary
+      .lookup<NativeFunction<PlayerSetAspectRatioCXX>>('PlayerSetAspectRatio')
+      .asFunction();
+      
 }
 
 abstract class MediaFFI {

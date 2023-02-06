@@ -28,6 +28,7 @@
 #include "player/player.h"
 #include "record/record.h"
 #include "utils/instance_handler.h"
+#include "tracks/tracks.h"
 
 #ifndef DLLEXPORT
 #ifdef _WIN32

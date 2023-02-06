@@ -31,3 +31,4 @@ export 'package:dart_vlc_ffi/src/enums/media_source_type.dart';
 export 'package:dart_vlc_ffi/src/enums/media_type.dart';
 export 'package:dart_vlc_ffi/src/enums/playlist_mode.dart';
 export 'package:dart_vlc_ffi/src/internal/initializer.dart';
+export 'package:dart_vlc_ffi/src/track.dart';

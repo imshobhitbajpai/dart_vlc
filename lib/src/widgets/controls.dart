@@ -21,6 +21,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:dart_vlc_ffi/src/device.dart';
+import 'package:dart_vlc_ffi/src/track.dart';
 import 'package:dart_vlc_ffi/src/player.dart';
 import 'package:dart_vlc_ffi/src/player_state/player_state.dart';
 
@@ -78,6 +79,8 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
   late AnimationController playPauseController;
 
   Player get player => widget.player;
+
+  static const String tag = "=====Control=====";
 
   @override
   void initState() {
@@ -146,6 +149,174 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                             Color(0xCC000000),
                           ],
                         ),
+                      ),
+                    ),
+                      Positioned(
+                      right: 15,
+                      top: 12.5,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                            PopupMenuButton(
+                            tooltip: 'Aspect Ratio',
+                            iconSize: 24,
+                            icon: Icon(Icons.aspect_ratio, color: Colors.white),
+                            onSelected: (String ratio) {
+                              player.setAspectRatio(ratio);
+                              setState(() {});
+                              debugPrint("$tag=====${player.aspectRatio}=====");
+                            },
+                            itemBuilder: (context) {
+                              return ["3:4", "1:1", "16:9", "235:100", "5:4", ""] //should look like MS
+                                  .map(
+                                    (ratio) => PopupMenuItem(
+                                      child: Text(ratio.isEmpty ? "Default": ratio,
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: ratio == player.aspectRatio ? FontWeight.bold : null
+                                          )),
+                                      value: ratio,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                          IconButton(
+                            icon: Stack(children: [Icon(Icons.closed_caption, color: Colors.white),
+                                  Positioned(
+                                    bottom: 0, right: 0,
+                                    child: Icon(Icons.add, color: Colors.blue, size: 8,))],),
+                            tooltip: 'Add Subtitles', 
+                            onPressed: (() {
+                              final String pathOrUrl = "https://github.com/andreyvit/subtitle-tools/raw/master/sample.srt";
+                              //final Uri uri = Uri(path: "file:///D:/ImpoData/Neutro%20Assets/subtitle_test.srt");
+                              //player.setCustomSubtitleFile("file:///D:/ImpoData/Neutro%20Assets/subtitle_test.srt"); ///file:/// is important
+                              player.setCustomSubtitleFile(pathOrUrl); 
+                              debugPrint("====Custom Subtitles From: $pathOrUrl======");
+
+                            }),),
+                          PopupMenuButton(
+                            tooltip: 'Subtitles Delay',
+                            iconSize: 24,
+                            icon: Stack(children: [Icon(Icons.sync, color: Colors.white),
+                                  Positioned(
+                                    bottom: 0, right: 0,
+                                    child: Icon(Icons.closed_caption, color: Colors.blue, size: 8,))],),
+                            onSelected: (int delay) {
+                              player.setSubtitleDelay(delay * 1000);
+                              setState(() {});
+                            },
+                            itemBuilder: (context) {
+                              return [-1000, -500, -100, -50, 0, 50, 100, 500, 1000] //should look like MS
+                                  .map(
+                                    (delay) => PopupMenuItem(
+                                      child: Text(delay.toString(),
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: delay *1000 == player.getSubtitleDelay? FontWeight.bold : null
+                                          )),
+                                      value: delay,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                          PopupMenuButton(
+                            tooltip: 'Audio Delay',
+                            iconSize: 24,
+                            icon: Stack(children: [Icon(Icons.sync, color: Colors.white),
+                                  Positioned(
+                                    bottom: 0, right: 0,
+                                    child: Icon(Icons.audiotrack, color: Colors.blue, size: 8,))],),
+                            onSelected: (int delay) {
+                              player.setAudioDelay(delay * 1000);
+                              setState(() {});
+                            },
+                            itemBuilder: (context) {
+                              return [-1000, -500, -100, -50, 0, 50, 100, 500, 1000] //should look like MS
+                                  .map(
+                                    (delay) => PopupMenuItem(
+                                      child: Text(delay.toString(),
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: delay *1000 == player.getAudioDelay? FontWeight.bold : null
+                                          )),
+                                      value: delay,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                          PopupMenuButton(
+                            tooltip: 'Subtitles',
+                            iconSize: 24,
+                            icon: Icon(player.currentSubtitleTrack == -1 ? Icons.closed_caption_off : Icons.closed_caption, color: Colors.white),
+                            onSelected: (Track track) {
+                              player.setSubtitleTrack(int.parse(track.id));
+                              setState(() {});
+                            },
+                            itemBuilder: (context) {
+                              return player.subtitleTracks
+                                  .map(
+                                    (track) => PopupMenuItem(
+                                      child: Text(track.name,
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: int.parse(track.id) == player.currentSubtitleTrack ? FontWeight.bold : null
+                                          )),
+                                      value: track,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                          PopupMenuButton(
+                            tooltip: 'Audio Tracks',
+                            iconSize: 24,
+                            icon: Icon(Icons.audiotrack, color: Colors.white),
+                            onSelected: (Track track) {
+                              player.setAudioTrack(int.parse(track.id));
+                              setState(() {});
+                            },
+                            itemBuilder: (context) {
+                              return player.audioTracks
+                                  .map(
+                                    (track) => PopupMenuItem(
+                                      child: Text(track.name,
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: int.parse(track.id) == player.currentAudioTrack ? FontWeight.bold : null
+                                          )),
+                                      value: track,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                          PopupMenuButton(
+                            tooltip: 'Video Tracks',
+                            iconSize: 24,
+                            icon: Icon(Icons.video_collection, color: Colors.white),
+                            onSelected: (Track track) {
+                              player.setVideoTrack(int.parse(track.id));
+                              setState(() {});
+                            },
+                            itemBuilder: (context) {
+                              return player.videoTracks
+                                  .map(
+                                    (track) => PopupMenuItem(
+                                      child: Text(track.name,
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: int.parse(track.id) == player.currentVideoTrack ? FontWeight.bold : null
+                                          )),
+                                      value: track,
+                                    ),
+                                  )
+                                  .toList();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Positioned(
@@ -292,6 +463,7 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                             backgroundColor: widget.volumeBackgroundColor,
                           ),
                           PopupMenuButton(
+                            tooltip: 'Audio Devices',
                             iconSize: 24,
                             icon: Icon(Icons.speaker, color: Colors.white),
                             onSelected: (Device device) {

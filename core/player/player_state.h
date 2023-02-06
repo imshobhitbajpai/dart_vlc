@@ -51,6 +51,8 @@ class PlayerState {
   void set_position(int32_t value) { position_ = value; };
   void set_duration(int32_t value) { duration_ = value; };
   void set_volume(float value) { volume_ = value; }
+  //new
+  void set_audio_delay(int64_t value) { delay_in_micros= value; }
   void set_rate(float value) { rate_ = value; }
   void set_is_playlist(bool value) { is_playlist_ = value; };
   void set_is_started(bool value) { is_started_ = value; };
@@ -68,6 +70,8 @@ class PlayerState {
   int32_t position_ = 0;
   int32_t duration_ = 0;
   float volume_ = 1.0;
+  //new
+  int64_t delay_in_micros = 0;
   float rate_ = 1.0;
   bool is_playlist_ = false;
   bool is_started_ = false;

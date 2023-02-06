@@ -23,6 +23,7 @@
 #include <optional>
 #include <vector>
 #include <vlcpp/vlc.hpp>
+#include <vlcpp/structures.hpp>
 
 #include "player/player_state.h"
 
@@ -66,6 +67,14 @@ class Player {
   void Seek(int32_t position);
 
   void SetVolume(float volume);
+  
+  void SetAudioDelay(int64_t volume);
+  int64_t GetAudioDelay();
+
+  void SetSubtitleDelay(int64_t volume);
+  int64_t GetSubtitleDelay();
+
+  bool SetCustomSubtitleFile(std::string file_path, bool select);
 
   void SetRate(float rate);
 
@@ -92,8 +101,24 @@ class Player {
   void SetVideoHeight(int32_t height);
 
   void SetAudioTrack(int32_t track);
+  
+  void SetVideoTrack(int32_t track);
+  
+  void SetSubtitleTrack(int32_t track);
+
+  void SetAspectRatio(const char* ar);
 
   int32_t GetAudioTrackCount();
+
+  int32_t GetCurrentAudioTrack();
+  int32_t GetCurrentVideoTrack();
+  int32_t GetCurrentSubtitleTrack();
+
+  char* GetAspectRatio();
+  
+  std::vector<VLC::TrackDescription> GetAudioTracksDescription();
+  std::vector<VLC::TrackDescription> GetVideoTracksDescription();
+  std::vector<VLC::TrackDescription> GetSubtitleTracksDescription();
 
   void SetHWND(int64_t hwnd);
 

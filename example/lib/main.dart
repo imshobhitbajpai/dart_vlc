@@ -15,12 +15,19 @@ class DartVLCExample extends StatefulWidget {
 }
 
 class DartVLCExampleState extends State<DartVLCExample> {
+  //static const String testURL = "https://5b44cf20b0388.streamlock.net:8443/vod/smil:hls-maudios-prod.smil/playlist.m3u8"; 
+  static const String testURL = "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"; //subtitle
+  //static const String testURL = "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
+  //static const String testURL = "https://mtoczko.github.io/hls-test-streams/test-audio-pdt/playlist.m3u8";
+  //static const String testURL = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+  //static const String testURL = "https://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_stereo_subs.m3u8";
+
   Player player = Player(
     id: 0,
     videoDimensions: VideoDimensions(640, 360),
     registerTexture: !Platform.isWindows,
   );
-  MediaType mediaType = MediaType.file;
+  MediaType mediaType = MediaType.network;
   CurrentState current = CurrentState();
   PositionState position = PositionState();
   PlaybackState playback = PlaybackState();
@@ -28,10 +35,11 @@ class DartVLCExampleState extends State<DartVLCExample> {
   VideoDimensions videoDimensions = VideoDimensions(0, 0);
   List<Media> medias = <Media>[];
   List<Device> devices = <Device>[];
-  TextEditingController controller = TextEditingController();
+  TextEditingController controller = TextEditingController()..text = testURL;
   TextEditingController metasController = TextEditingController();
   double bufferingProgress = 0.0;
   Media? metasMedia;
+  
 
   @override
   void initState() {
@@ -44,10 +52,14 @@ class DartVLCExampleState extends State<DartVLCExample> {
         this.setState(() => this.position = position);
       });
       this.player.playbackStream.listen((playback) {
-        this.setState(() => this.playback = playback);
+        this.setState(() {
+          this.playback = playback;
+          });
       });
       this.player.generalStream.listen((general) {
-        this.setState(() => this.general = general);
+        this.setState(() { 
+          this.general = general;
+         });
       });
       this.player.videoDimensionsStream.listen((videoDimensions) {
         this.setState(() => this.videoDimensions = videoDimensions);
@@ -65,6 +77,8 @@ class DartVLCExampleState extends State<DartVLCExample> {
       equalizer.setPreAmp(10.0);
       equalizer.setBandAmp(31.25, 10.0);
       this.player.setEqualizer(equalizer);
+     
+
     }
   }
 
@@ -119,6 +133,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                       ),
               ],
             ),
+            const SizedBox(height: 20,),
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,

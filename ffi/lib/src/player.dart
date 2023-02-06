@@ -5,6 +5,8 @@ import 'package:ffi/ffi.dart';
 import 'package:dart_vlc_ffi/dart_vlc_ffi.dart';
 import 'package:dart_vlc_ffi/src/internal/ffi.dart';
 
+import 'internal/ffi.dart';
+
 /// Represents dimensions of a video.
 class VideoDimensions {
   /// Width of the video.
@@ -402,6 +404,14 @@ class Player {
     return PlayerFFI.setAudioTrack(this.id, track);
   }
 
+  void setVideoTrack(int track) {
+    return PlayerFFI.setVideoTrack(this.id, track);
+  }
+  
+  void setSubtitleTrack(int track) {
+    return PlayerFFI.setSubtitleTrack(this.id, track);
+  }
+
   /// Gets audio track count from current [MediaSource]
   int get audioTrackCount {
     int count = PlayerFFI.getAudioTrackCount(this.id);
@@ -413,6 +423,68 @@ class Player {
   void setHWND(int hwnd) {
     PlayerFFI.setHWND(this.id, hwnd);
   }
+
+
+  int get currentAudioTrack {
+    return Tracks.getCurrentTrack(this.id, "AUDIO");
+  }
+
+  int get currentVideoTrack {
+    return Tracks.getCurrentTrack(this.id, "VIDEO");
+  }
+
+  int get currentSubtitleTrack {
+    return Tracks.getCurrentTrack(this.id, "SUBTITLE");
+  }
+
+  List<Track> get audioTracks {
+    return Tracks.all(this.id, "AUDIO");
+  }
+
+  List<Track> get videoTracks {
+    return Tracks.all(this.id, "VIDEO");
+  }
+
+  List<Track> get subtitleTracks {
+    return Tracks.all(this.id, "SUBTITLE");
+  }
+  
+  void setAudioDelay(int delayInMicros) {
+    PlayerFFI.setAudioDelay(this.id, delayInMicros);
+  }
+
+  int get getAudioDelay {
+    return PlayerFFI.getAudioDelay(this.id);
+  }
+  
+  void setSubtitleDelay(int delayInMicros) {
+    PlayerFFI.setSubtitleDelay(this.id, delayInMicros);
+  }
+
+  int get getSubtitleDelay {
+    return PlayerFFI.getSubtitleDelay(this.id);
+  }
+  
+  bool setCustomSubtitleFile(String filePath, {bool select = true}) {
+    final ptr = filePath.toNativeUtf8();
+    final result = PlayerFFI.setCustomSubtitleFile(this.id, ptr, select);
+    calloc.free(ptr);
+    return result;
+  }
+
+
+  void setAspectRatio(String aspectRatio) {
+    final ptr = aspectRatio.toNativeUtf8();
+    PlayerFFI.setAspectRatio(this.id, ptr);
+    calloc.free(ptr);
+  }
+   
+  String get aspectRatio {
+    final ptr = PlayerFFI.getAspectRatio(this.id);
+    final ar = ptr.toDartString();
+    //calloc.free(ptr); //TODO: It is crashing, No Idea Why //https://www.kodeco.com/21512310-calling-native-libraries-in-flutter-with-dart-ffi
+    return ar;
+  } 
 
   /// Destroys the instance of [Player] & closes all [StreamController]s in it.
   void dispose() {

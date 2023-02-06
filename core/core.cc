@@ -25,6 +25,7 @@
 #include "player/player.h"
 #include "record/record.h"
 #include "utils/instance_handler.h"
+#include "tracks/tracks.h"
 
 #ifdef __cplusplus
 extern "C" {
