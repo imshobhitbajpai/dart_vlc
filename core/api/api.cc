@@ -32,7 +32,7 @@ struct DeviceList {
   // The device list that gets exposed to Dart.
   DartDeviceList dart_object;
 
-  // Previousing data
+  // Previousing data.
   std::vector<DartDeviceList::Device> device_infos;
   std::vector<Device> devices;
 };
@@ -51,7 +51,7 @@ struct Equalizer {
   // The equalizer that gets exposed to Dart.
   DartEqualizer dart_object;
 
-  // Previousing data
+  // Previousing data.
   std::vector<float> bands;
   std::vector<float> amps;
 };
@@ -65,16 +65,14 @@ extern "C" {
 #endif
 
 void PlayerCreate(int32_t id, int32_t video_width, int32_t video_height,
-                  int32_t commandLineArgumentsCount,
-                  const char** commandLineArguments) {
+                  int32_t argc, const char** argv) {
   std::vector<std::string> args{};
-  for (int32_t index = 0; index < commandLineArgumentsCount; index++) {
-    args.emplace_back(commandLineArguments[index]);
+  for (int32_t i = 0; i < argc; i++) {
+    args.emplace_back(argv[i]);
   }
   auto player = g_players->Get(id);
   if (!player) {
-    g_players->Create(
-        id, std::move(std::make_unique<Player>(std::vector<std::string>{})));
+    g_players->Create(id, std::move(std::make_unique<Player>(args)));
     player = g_players->Get(id);
   }
   if (video_width > 0 && video_height > 0) {
@@ -92,12 +90,11 @@ void PlayerCreate(int32_t id, int32_t video_width, int32_t video_height,
   player->SetCompleteCallback(
       [=]() -> void { OnComplete(id, player->state()); });
   player->SetVolumeCallback(
-      [=](float) -> void { OnVolume(id, player->state()); });
+      [=](auto) -> void { OnVolume(id, player->state()); });
   player->SetRateCallback([=](float) -> void { OnRate(id, player->state()); });
   player->SetPositionCallback(
-      [=](int32_t) -> void { OnPosition(id, player->state()); });
-  player->SetOpenCallback(
-      [=](VLC::Media) -> void { OnOpen(id, player->state()); });
+      [=](auto) -> void { OnPosition(id, player->state()); });
+  player->SetOpenCallback([=](auto) -> void { OnOpen(id, player->state()); });
   player->SetPlaylistCallback([=]() -> void { OnOpen(id, player->state()); });
   player->SetBufferingCallback(
       [=](float buffering) -> void { OnBuffering(id, buffering); });

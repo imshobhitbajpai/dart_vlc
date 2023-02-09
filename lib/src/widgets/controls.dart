@@ -42,10 +42,6 @@ class Control extends StatefulWidget {
     required this.volumeInactiveColor,
     required this.volumeBackgroundColor,
     required this.volumeThumbColor,
-    this.enterFullscreen,
-    this.exitFullscreen,
-    this.isFullscreen: false,
-    this.showFullscreenButton: false,
   }) : super(key: key);
 
   final Widget child;
@@ -62,10 +58,6 @@ class Control extends StatefulWidget {
   final Color? volumeInactiveColor;
   final Color? volumeBackgroundColor;
   final Color? volumeThumbColor;
-  final VoidCallback? enterFullscreen;
-  final VoidCallback? exitFullscreen;
-  final bool isFullscreen;
-  final bool showFullscreenButton;
 
   @override
   ControlState createState() => ControlState();
@@ -114,7 +106,10 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
       onTap: () {
         if (player.playback.isPlaying) {
           if (_displayTapped) {
-            setState(() => _hideControls = true);
+            setState(() {
+              _hideControls = true;
+              _displayTapped = false;
+            });
           } else {
             _cancelAndRestartTimer();
           }
@@ -392,8 +387,9 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                                             .position?.inMilliseconds ??
                                         0;
                                     if (!(positionInMilliseconds - 10000)
-                                        .isNegative)
+                                        .isNegative) {
                                       positionInMilliseconds -= 10000;
+                                    }
                                     player.seek(Duration(
                                         milliseconds: positionInMilliseconds));
                                     setState(() {});
@@ -487,23 +483,6 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                         ],
                       ),
                     ),
-                    if (widget.showFullscreenButton)
-                      Positioned(
-                        left: 15,
-                        bottom: 12.5,
-                        child: IconButton(
-                          onPressed: !widget.isFullscreen
-                              ? widget.enterFullscreen
-                              : widget.exitFullscreen,
-                          iconSize: 24,
-                          icon: Icon(
-                            !widget.isFullscreen
-                                ? Icons.fullscreen
-                                : Icons.fullscreen_exit,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -532,6 +511,7 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
       if (mounted) {
         setState(() {
           _hideControls = true;
+          _displayTapped = false;
         });
       }
     });
@@ -555,10 +535,10 @@ class VolumeControl extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VolumeControlState createState() => _VolumeControlState();
+  VolumeControlState createState() => VolumeControlState();
 }
 
-class _VolumeControlState extends State<VolumeControl> {
+class VolumeControlState extends State<VolumeControl> {
   double volume = 0.5;
   bool _showVolume = false;
   double unmutedVolume = 0.5;
@@ -630,12 +610,13 @@ class _VolumeControlState extends State<VolumeControl> {
   }
 
   IconData getIcon() {
-    if (player.general.volume > .5)
+    if (player.general.volume > .5) {
       return Icons.volume_up_sharp;
-    else if (player.general.volume > 0)
+    } else if (player.general.volume > 0) {
       return Icons.volume_down_sharp;
-    else
+    } else {
       return Icons.volume_off_sharp;
+    }
   }
 
   void muteUnmute() {

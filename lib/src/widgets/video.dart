@@ -23,7 +23,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 import 'package:dart_vlc/src/widgets/controls.dart';
-import 'package:window_manager/window_manager.dart';
 
 /// Internally used map to keep [GlobalKey]s for [Video]'s [ControlState]s.
 Map<int, GlobalKey<ControlState>> controls = {};
@@ -84,10 +83,10 @@ class Video extends StatefulWidget {
     Player? player,
     this.width,
     this.height,
-    this.fit: BoxFit.contain,
-    this.alignment: Alignment.center,
-    this.scale: 1.0,
-    this.showControls: true,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.scale = 1.0,
+    this.showControls = true,
     this.progressBarActiveColor,
     this.progressBarInactiveColor = Colors.white24,
     this.progressBarThumbColor,
@@ -101,8 +100,7 @@ class Video extends StatefulWidget {
     this.showTimeLeft = false,
     this.progressBarTextStyle = const TextStyle(),
     this.filterQuality = FilterQuality.low,
-    this.showFullscreenButton = false,
-    this.fillColor: Colors.black,
+    this.fillColor = Colors.black,
   })  : player = player ?? players[playerId]! as Player,
         super(key: key);
 
@@ -171,16 +169,14 @@ class Video extends StatefulWidget {
   /// instead of the total time, set this to true
   final bool showTimeLeft;
 
-  /// Whether to show the fullscreen button.
-  final bool showFullscreenButton;
-
   /// Fill color.
   final Color fillColor;
 
-  _VideoStateBase createState() => _VideoStateTexture();
+  @override
+  VideoStateBase createState() => VideoStateTexture();
 }
 
-abstract class _VideoStateBase extends State<Video>
+abstract class VideoStateBase extends State<Video>
     with AutomaticKeepAliveClientMixin {
   GlobalKey<ControlState> controlKey = GlobalKey<ControlState>();
 
@@ -190,53 +186,6 @@ abstract class _VideoStateBase extends State<Video>
   void initState() {
     super.initState();
     if (widget.showControls) controls[playerId] = controlKey;
-  }
-
-  void enterFullscreen() async {
-    await windowManager.ensureInitialized();
-    await windowManager.setFullScreen(true);
-    Navigator.of(context, rootNavigator: true).push(
-      PageRouteBuilder(
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (_, __, ___) => Scaffold(
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            color: widget.fillColor,
-            child: widget.showControls
-                ? Control(
-                    player: widget.player,
-                    enterFullscreen: enterFullscreen,
-                    exitFullscreen: exitFullscreen,
-                    isFullscreen: true,
-                    showFullscreenButton: widget.showFullscreenButton,
-                    progressBarThumbRadius: widget.progressBarThumbRadius,
-                    progressBarThumbGlowRadius:
-                        widget.progressBarThumbGlowRadius,
-                    progressBarActiveColor: widget.progressBarActiveColor,
-                    progressBarInactiveColor: widget.progressBarInactiveColor,
-                    progressBarThumbColor: widget.progressBarThumbColor,
-                    progressBarThumbGlowColor: widget.progressBarThumbGlowColor,
-                    volumeActiveColor: widget.volumeActiveColor,
-                    volumeInactiveColor: widget.volumeInactiveColor,
-                    volumeBackgroundColor: widget.volumeBackgroundColor,
-                    volumeThumbColor: widget.volumeThumbColor,
-                    showTimeLeft: widget.showTimeLeft,
-                    progressBarTextStyle: widget.progressBarTextStyle,
-                    child: present(),
-                  )
-                : present(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void exitFullscreen() async {
-    await windowManager.ensureInitialized();
-    await windowManager.setFullScreen(false);
-    Navigator.of(context, rootNavigator: false).pop();
   }
 
   @override
@@ -250,10 +199,6 @@ abstract class _VideoStateBase extends State<Video>
           ? Control(
               key: controlKey,
               player: widget.player,
-              enterFullscreen: enterFullscreen,
-              exitFullscreen: exitFullscreen,
-              isFullscreen: false,
-              showFullscreenButton: widget.showFullscreenButton,
               progressBarThumbRadius: widget.progressBarThumbRadius,
               progressBarThumbGlowRadius: widget.progressBarThumbGlowRadius,
               progressBarActiveColor: widget.progressBarActiveColor,
@@ -276,7 +221,7 @@ abstract class _VideoStateBase extends State<Video>
 }
 
 /// Texture based Video playback.
-class _VideoStateTexture extends _VideoStateBase {
+class VideoStateTexture extends VideoStateBase {
   StreamSubscription? _videoDimensionsSubscription;
   double? _videoWidth;
   double? _videoHeight;
@@ -299,6 +244,7 @@ class _VideoStateTexture extends _VideoStateBase {
     if (mounted) setState(() {});
   }
 
+  @override
   Widget present() {
     return ValueListenableBuilder<int?>(
       valueListenable: widget.player.textureId,
@@ -339,7 +285,7 @@ class _VideoStateTexture extends _VideoStateBase {
 
 /// NativePorts & decodeImageFromPixels based video playback.
 // ignore: unused_element
-class _VideoStateFallback extends _VideoStateBase {
+class VideoStateFallback extends VideoStateBase {
   Widget? videoFrameRawImage;
 
   Future<RawImage> getVideoFrameRawImage(VideoFrame videoFrame) async {
@@ -349,7 +295,7 @@ class _VideoStateFallback extends _VideoStateBase {
         videoFrame.videoWidth,
         videoFrame.videoHeight,
         ui.PixelFormat.rgba8888,
-        (ui.Image _image) => imageCompleter.complete(_image),
+        (ui.Image i) => imageCompleter.complete(i),
         rowBytes: 4 * videoFrame.videoWidth);
     ui.Image image = await imageCompleter.future;
 
@@ -370,8 +316,9 @@ class _VideoStateFallback extends _VideoStateBase {
         ?.stream
         .listen((VideoFrame videoFrame) async {
       videoFrameRawImage = await getVideoFrameRawImage(videoFrame);
-      if (mounted && !(videoStreamControllers[playerId]?.isClosed ?? true))
+      if (mounted && !(videoStreamControllers[playerId]?.isClosed ?? true)) {
         setState(() {});
+      }
     });
     if (mounted) setState(() {});
   }
@@ -382,6 +329,7 @@ class _VideoStateFallback extends _VideoStateBase {
     super.dispose();
   }
 
+  @override
   Widget present() {
     return videoFrameRawImage != null
         ? SizedBox.expand(

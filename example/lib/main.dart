@@ -1,17 +1,28 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dart_vlc/dart_vlc.dart';
 
 void main() async {
-  await DartVLC.initialize(useFlutterNativeView: true);
+  DartVLC.initialize();
   runApp(DartVLCExample());
 }
 
-class DartVLCExample extends StatefulWidget {
+class DartVLCExample extends StatelessWidget {
+  const DartVLCExample({Key? key}) : super(key: key);
+
   @override
-  DartVLCExampleState createState() => DartVLCExampleState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('package:dart_vlc'),
+          centerTitle: true,
+        ),
+        body: PrimaryScreen(),
+      ),
+    );
+  }
 }
 
 class DartVLCExampleState extends State<DartVLCExample> {
@@ -44,12 +55,12 @@ class DartVLCExampleState extends State<DartVLCExample> {
   @override
   void initState() {
     super.initState();
-    if (this.mounted) {
-      this.player.currentStream.listen((current) {
-        this.setState(() => this.current = current);
+    if (mounted) {
+      player.currentStream.listen((value) {
+        setState(() => current = value);
       });
-      this.player.positionStream.listen((position) {
-        this.setState(() => this.position = position);
+      player.positionStream.listen((value) {
+        setState(() => position = value);
       });
       this.player.playbackStream.listen((playback) {
         this.setState(() {
@@ -61,18 +72,18 @@ class DartVLCExampleState extends State<DartVLCExample> {
           this.general = general;
          });
       });
-      this.player.videoDimensionsStream.listen((videoDimensions) {
-        this.setState(() => this.videoDimensions = videoDimensions);
+      player.videoDimensionsStream.listen((value) {
+        setState(() => videoDimensions = value);
       });
-      this.player.bufferingProgressStream.listen(
-        (bufferingProgress) {
-          this.setState(() => this.bufferingProgress = bufferingProgress);
+      player.bufferingProgressStream.listen(
+        (value) {
+          setState(() => bufferingProgress = value);
         },
       );
-      this.player.errorStream.listen((event) {
-        print('libvlc error.');
+      player.errorStream.listen((event) {
+        debugPrint('libVLC error.');
       });
-      this.devices = Devices.all;
+      devices = Devices.all;
       Equalizer equalizer = Equalizer.createMode(EqualizerMode.live);
       equalizer.setPreAmp(10.0);
       equalizer.setBandAmp(31.25, 10.0);
@@ -86,9 +97,9 @@ class DartVLCExampleState extends State<DartVLCExample> {
   Widget build(BuildContext context) {
     bool isTablet;
     bool isPhone;
-    final double devicePixelRatio = ui.window.devicePixelRatio;
-    final double width = ui.window.physicalSize.width;
-    final double height = ui.window.physicalSize.height;
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     if (devicePixelRatio < 2 && (width >= 1000 || height >= 1000)) {
       isTablet = true;
       isPhone = false;
@@ -639,7 +650,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => this.player.play(),
+                  onPressed: () => player.play(),
                   child: const Text(
                     'play',
                     style: TextStyle(
@@ -649,7 +660,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
-                  onPressed: () => this.player.pause(),
+                  onPressed: () => player.pause(),
                   child: const Text(
                     'pause',
                     style: TextStyle(
@@ -659,7 +670,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
-                  onPressed: () => this.player.playOrPause(),
+                  onPressed: () => player.playOrPause(),
                   child: const Text(
                     'playOrPause',
                     style: TextStyle(
@@ -676,7 +687,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => this.player.stop(),
+                  onPressed: () => player.stop(),
                   child: const Text(
                     'stop',
                     style: TextStyle(
@@ -686,7 +697,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
-                  onPressed: () => this.player.next(),
+                  onPressed: () => player.next(),
                   child: const Text(
                     'next',
                     style: TextStyle(
@@ -696,7 +707,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
-                  onPressed: () => this.player.previous(),
+                  onPressed: () => player.previous(),
                   child: const Text(
                     'previous',
                     style: TextStyle(
@@ -721,10 +732,10 @@ class DartVLCExampleState extends State<DartVLCExample> {
             Slider(
               min: 0.0,
               max: 1.0,
-              value: this.player.general.volume,
+              value: player.general.volume,
               onChanged: (volume) {
-                this.player.setVolume(volume);
-                this.setState(() {});
+                player.setVolume(volume);
+                setState(() {});
               },
             ),
             const Text('Playback rate control.'),
@@ -735,10 +746,10 @@ class DartVLCExampleState extends State<DartVLCExample> {
             Slider(
               min: 0.5,
               max: 1.5,
-              value: this.player.general.rate,
+              value: player.general.rate,
               onChanged: (rate) {
-                this.player.setRate(rate);
-                this.setState(() {});
+                player.setRate(rate);
+                setState(() {});
               },
             ),
           ],
@@ -775,43 +786,44 @@ class DartVLCExampleState extends State<DartVLCExample> {
             Container(
               height: 456.0,
               child: ReorderableListView(
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                onReorder: (int initialIndex, int finalIndex) async {
-                  /// 🙏🙏🙏
-                  /// In the name of God,
-                  /// With all due respect,
-                  /// I ask all Flutter engineers to please fix this issue.
-                  /// Peace.
-                  /// 🙏🙏🙏
-                  ///
-                  /// Issue:
-                  /// https://github.com/flutter/flutter/issues/24786
-                  /// Prevention:
-                  /// https://stackoverflow.com/a/54164333/12825435
-                  ///
-                  if (finalIndex > this.current.medias.length)
-                    finalIndex = this.current.medias.length;
-                  if (initialIndex < finalIndex) finalIndex--;
-
-                  this.player.move(initialIndex, finalIndex);
-                  this.setState(() {});
+                onReorder: (int before, int after) async {
+                  // [ReorderableListView] in Flutter is buggy.
+                  // The [onReorder] callback receives incorrect indices when the [children] are re-ordered.
+                  // Workaround : https://stackoverflow.com/a/54164333/12825435
+                  // Issue      : https://github.com/flutter/flutter/issues/24786
+                  if (after > current.medias.length) {
+                    after = current.medias.length;
+                  }
+                  if (before < after) after--;
+                  player.move(
+                    before,
+                    after,
+                  );
+                  setState(() {});
                 },
                 scrollDirection: Axis.vertical,
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 children: List.generate(
-                  this.current.medias.length,
+                  current.medias.length,
                   (int index) => ListTile(
                     key: Key(index.toString()),
                     leading: Text(
                       index.toString(),
                       style: const TextStyle(fontSize: 14.0),
                     ),
-                    title: Text(
-                      this.current.medias[index].resource,
-                      style: const TextStyle(fontSize: 14.0),
+                    title: Container(
+                      padding: const EdgeInsets.only(right: 56.0),
+                      child: Text(
+                        current.medias[index].resource,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14.0),
+                      ),
                     ),
                     subtitle: Text(
-                      this.current.medias[index].mediaType.toString(),
+                      current.medias[index].mediaType.toString(),
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 14.0),
                     ),
                   ),
