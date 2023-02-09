@@ -25,7 +25,13 @@ class DartVLCExample extends StatelessWidget {
   }
 }
 
-class DartVLCExampleState extends State<DartVLCExample> {
+class PrimaryScreen extends StatefulWidget {
+  @override
+  PrimaryScreenState createState() => PrimaryScreenState();
+}
+
+
+class PrimaryScreenState  extends State<PrimaryScreen > {
   //static const String testURL = "https://5b44cf20b0388.streamlock.net:8443/vod/smil:hls-maudios-prod.smil/playlist.m3u8"; 
   static const String testURL = "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"; //subtitle
   //static const String testURL = "https://bitmovin-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
@@ -36,7 +42,6 @@ class DartVLCExampleState extends State<DartVLCExample> {
   Player player = Player(
     id: 0,
     videoDimensions: VideoDimensions(640, 360),
-    registerTexture: !Platform.isWindows,
   );
   MediaType mediaType = MediaType.network;
   CurrentState current = CurrentState();
@@ -110,13 +115,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
       isTablet = false;
       isPhone = true;
     }
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('dart_vlc'),
-          centerTitle: true,
-        ),
-        body: ListView(
+    return  ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.all(4.0),
           children: [
@@ -125,16 +124,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Platform.isWindows
-                    ? NativeVideo(
-                        player: player,
-                        width: isPhone ? 320 : 640,
-                        height: isPhone ? 180 : 360,
-                        volumeThumbColor: Colors.blue,
-                        volumeActiveColor: Colors.blue,
-                        showControls: !isPhone,
-                      )
-                    : Video(
+                Video(
                         player: player,
                         width: isPhone ? 320 : 640,
                         height: isPhone ? 180 : 360,
@@ -301,9 +291,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
                                           () {
                                             this.player.open(
                                                   Playlist(
-                                                    medias: this.medias,
-                                                    playlistMode:
-                                                        PlaylistMode.single,
+                                                    medias: this.medias
                                                   ),
                                                 );
                                           },
@@ -628,9 +616,7 @@ class DartVLCExampleState extends State<DartVLCExample> {
               ],
             )
           ],
-        ),
-      ),
-    );
+        );
   }
 
   Widget _controls(BuildContext context, bool isPhone) {
