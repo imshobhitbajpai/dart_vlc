@@ -13,17 +13,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dart_vlc_ffi: ^0.2.0
+  dart_vlc_ffi:
+    path: ./ffi
   path: ^1.8.2
   audio_video_progress_bar: ^0.11.0
 
 dev_dependencies:
   lints: ^2.0.1
-
-# REMOVE THIS BEFORE PUBLISHING ON pub.dev.
-dependency_overrides:
-  dart_vlc_ffi:
-    path: ./ffi
 
 flutter:
   # No platform channel implementation after migration to FFI.
